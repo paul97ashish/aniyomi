@@ -20,6 +20,12 @@ class TvCursorView(context: Context) : View(context) {
     var cursorY: Float = 0f
         private set
 
+    // Dark shadow drawn first (largest, offset), then dark outline, then white fill on top
+    private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.BLACK
+        style = Paint.Style.FILL
+        alpha = 180
+    }
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
         style = Paint.Style.FILL
@@ -27,34 +33,39 @@ class TvCursorView(context: Context) : View(context) {
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.BLACK
         style = Paint.Style.STROKE
-        strokeWidth = 3f
+        strokeWidth = 4f
+        strokeJoin = Paint.Join.ROUND
+        strokeCap = Paint.Cap.ROUND
     }
 
     // Arrow cursor path (tip at origin, pointing up-left)
     private val arrowPath = Path()
+    private val shadowPath = Path()
 
     private val hideHandler = Handler(Looper.getMainLooper())
     private val hideRunnable = Runnable { alpha = 0f }
 
     companion object {
         private const val HIDE_DELAY_MS = 3_000L
-        private const val CURSOR_SIZE = 48f // dp-ish at 160dpi; scales with density
+        private const val CURSOR_SIZE = 36f // dp-ish at 160dpi; scales with density
+        private const val SHADOW_OFFSET = 3f // px offset for drop shadow
     }
 
     init {
-        // Start roughly centred; will be overridden before first draw
         cursorX = 540f
         cursorY = 540f
         isClickable = false
         isFocusable = false
-        // Build the cursor arrow path once
         rebuildArrow()
     }
 
     private fun rebuildArrow() {
-        val s = CURSOR_SIZE * resources.displayMetrics.density / 160f
+        val density = resources.displayMetrics.density
+        val s = CURSOR_SIZE * density / 160f
+        val shadow = SHADOW_OFFSET * density / 160f
+
+        // Main arrow: tip at (0,0), shaft points down-right
         arrowPath.rewind()
-        // Classic arrow: tip at (0,0), shaft down-right
         arrowPath.moveTo(0f, 0f)
         arrowPath.lineTo(0f, s * 1.4f)
         arrowPath.lineTo(s * 0.38f, s * 1.0f)
@@ -63,6 +74,17 @@ class TvCursorView(context: Context) : View(context) {
         arrowPath.lineTo(s * 0.62f, s * 0.88f)
         arrowPath.lineTo(s, s * 0.88f)
         arrowPath.close()
+
+        // Shadow path is the same shape offset by (shadow, shadow)
+        shadowPath.rewind()
+        shadowPath.moveTo(shadow, shadow)
+        shadowPath.lineTo(shadow, s * 1.4f + shadow)
+        shadowPath.lineTo(s * 0.38f + shadow, s * 1.0f + shadow)
+        shadowPath.lineTo(s * 0.72f + shadow, s * 1.7f + shadow)
+        shadowPath.lineTo(s * 0.95f + shadow, s * 1.6f + shadow)
+        shadowPath.lineTo(s * 0.62f + shadow, s * 0.88f + shadow)
+        shadowPath.lineTo(s + shadow, s * 0.88f + shadow)
+        shadowPath.close()
     }
 
     fun moveTo(x: Float, y: Float) {
@@ -85,7 +107,11 @@ class TvCursorView(context: Context) : View(context) {
     override fun onDraw(canvas: Canvas) {
         canvas.save()
         canvas.translate(cursorX, cursorY)
+        // 1. soft shadow
+        canvas.drawPath(shadowPath, shadowPaint)
+        // 2. white fill
         canvas.drawPath(arrowPath, fillPaint)
+        // 3. black outline
         canvas.drawPath(arrowPath, strokePaint)
         canvas.restore()
     }
