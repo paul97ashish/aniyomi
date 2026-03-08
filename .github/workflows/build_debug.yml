@@ -45,16 +45,17 @@ jobs:
         env:
           GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=false"
 
-      - name: Rename APK with commit SHA
+      - name: Rename APK with version and commit SHA
         run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | sed 's/.*"\(.*\)".*/\1/')
           mv app/build/outputs/apk/debug/app-debug.apk \
-             app/build/outputs/apk/debug/aniyomi-debug-${GITHUB_SHA::7}.apk
+             app/build/outputs/apk/debug/aniyomiTV-${VERSION}-${GITHUB_SHA::7}.apk
 
       - name: Upload artifact (for Actions tab)
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: aniyomi-debug-${{ github.sha }}
-          path: app/build/outputs/apk/debug/aniyomi-debug-*.apk
+          name: aniyomiTV-${{ github.sha }}
+          path: app/build/outputs/apk/debug/aniyomiTV-*.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -69,16 +70,16 @@ jobs:
         uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
         with:
           tag_name: nightly
-          name: "Nightly (latest)"
+          name: "AniyomiTV Nightly (latest)"
           prerelease: true
           body: |
-            Automated debug build from the latest `main` commit.
+            Automated build from the latest `main` commit.
 
             **Commit:** ${{ github.sha }}
             **Date:** ${{ github.event.head_commit.timestamp }}
 
             > Install directly on your Android TV emulator or device.
             > You may need to enable "Install from unknown sources".
-          files: app/build/outputs/apk/debug/aniyomi-debug-*.apk
+          files: app/build/outputs/apk/debug/aniyomiTV-*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
