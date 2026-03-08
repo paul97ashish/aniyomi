@@ -10,7 +10,7 @@ import android.os.Looper
 import android.view.View
 
 /**
- * A transparent overlay [View] that draws a mouse-cursor arrow at [cursorX],[cursorY].
+ * A transparent overlay [View] that draws a mouse-cursor arrow at [cursorX], [cursorY].
  * Auto-hides after [HIDE_DELAY_MS] of inactivity and reappears on the next D-pad event.
  */
 class TvCursorView(context: Context) : View(context) {
