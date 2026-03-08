@@ -149,6 +149,7 @@ class MainActivity : BaseActivity() {
 
     // TV cursor — only non-null when running on Android TV
     private var tvCursorView: TvCursorView? = null
+
     // Pixels to move per D-pad event; grows with held events
     private var cursorSpeed = BASE_CURSOR_SPEED
 
@@ -367,10 +368,22 @@ class MainActivity : BaseActivity() {
         val dx: Float
         val dy: Float
         when (event.keyCode) {
-            KeyEvent.KEYCODE_DPAD_LEFT -> { dx = -cursorSpeed; dy = 0f }
-            KeyEvent.KEYCODE_DPAD_RIGHT -> { dx = cursorSpeed; dy = 0f }
-            KeyEvent.KEYCODE_DPAD_UP -> { dx = 0f; dy = -cursorSpeed }
-            KeyEvent.KEYCODE_DPAD_DOWN -> { dx = 0f; dy = cursorSpeed }
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                dx = -cursorSpeed
+                dy = 0f
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                dx = cursorSpeed
+                dy = 0f
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                dx = 0f
+                dy = -cursorSpeed
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                dx = 0f
+                dy = cursorSpeed
+            }
             KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
                 if (event.action == KeyEvent.ACTION_UP) injectTap(cursor.cursorX, cursor.cursorY)
                 return true
@@ -690,6 +703,6 @@ private const val SPLASH_MAX_DURATION = 5000 // ms
 private const val SPLASH_EXIT_ANIM_DURATION = 400L // ms
 
 // TV D-pad cursor
-private const val BASE_CURSOR_SPEED = 12f   // px per event at rest
-private const val CURSOR_ACCELERATION = 4f  // px added per repeated event
-private const val MAX_CURSOR_SPEED = 60f    // px per event at max speed
+private const val BASE_CURSOR_SPEED = 12f // px per event at rest
+private const val CURSOR_ACCELERATION = 4f // px added per repeated event
+private const val MAX_CURSOR_SPEED = 60f // px per event at max speed

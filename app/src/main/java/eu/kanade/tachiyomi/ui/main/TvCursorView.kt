@@ -38,7 +38,7 @@ class TvCursorView(context: Context) : View(context) {
 
     companion object {
         private const val HIDE_DELAY_MS = 3_000L
-        private const val CURSOR_SIZE = 48f   // dp-ish at 160dpi; scales with density
+        private const val CURSOR_SIZE = 48f // dp-ish at 160dpi; scales with density
     }
 
     init {
