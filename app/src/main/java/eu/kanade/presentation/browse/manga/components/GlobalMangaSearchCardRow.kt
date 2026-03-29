@@ -1,5 +1,6 @@
 package eu.kanade.presentation.browse.manga.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +14,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRestorer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.browse.InLibraryBadge
 import eu.kanade.presentation.library.components.CommonEntryItemDefaults
@@ -23,6 +30,7 @@ import tachiyomi.domain.entries.manga.model.asMangaCover
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun GlobalMangaSearchCardRow(
@@ -37,6 +45,7 @@ fun GlobalMangaSearchCardRow(
     }
 
     LazyRow(
+        modifier = Modifier.focusRestorer(),
         contentPadding = PaddingValues(MaterialTheme.padding.small),
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
     ) {
@@ -61,7 +70,20 @@ private fun MangaItem(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
-    Box(modifier = Modifier.width(96.dp)) {
+    Box(
+        modifier = Modifier
+            .width(96.dp)
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown) {
+                    onClick()
+                    true
+                } else {
+                    false
+                }
+            },
+    ) {
         EntryComfortableGridItem(
             title = title,
             titleMaxLines = 3,

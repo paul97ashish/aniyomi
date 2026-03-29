@@ -13,7 +13,9 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import eu.kanade.presentation.browse.anime.components.BrowseAnimeSourceComfortableGrid
@@ -53,12 +55,19 @@ fun BrowseAnimeSourceContent(
     onAnimeLongClick: (Anime) -> Unit,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
 
     val errorState = animeList.loadState.refresh.takeIf { it is LoadState.Error }
         ?: animeList.loadState.append.takeIf { it is LoadState.Error }
 
     val getErrorMessage: (LoadState.Error) -> String = { state ->
         with(context) { state.error.formattedMessage }
+    }
+
+    // On TV: if no results yet, move focus to the search bar (first focusable);
+    // if results are already present, move focus to the first result item.
+    LaunchedEffect(Unit) {
+        focusManager.moveFocus(FocusDirection.Next)
     }
 
     LaunchedEffect(errorState) {

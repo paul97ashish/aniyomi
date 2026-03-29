@@ -1,6 +1,8 @@
 package eu.kanade.presentation.browse.manga.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -8,6 +10,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -19,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import tachiyomi.domain.entries.manga.model.Manga
 import tachiyomi.domain.entries.manga.model.MangaCover
 import tachiyomi.presentation.core.util.plus
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun BrowseMangaSourceComfortableGrid(
@@ -63,20 +72,34 @@ private fun BrowseMangaSourceComfortableGridItem(
     onClick: () -> Unit = {},
     onLongClick: () -> Unit = onClick,
 ) {
-    EntryComfortableGridItem(
-        title = manga.title,
-        coverData = MangaCover(
-            mangaId = manga.id,
-            sourceId = manga.source,
-            isMangaFavorite = manga.favorite,
-            url = manga.thumbnailUrl,
-            lastModified = manga.coverLastModified,
-        ),
-        coverAlpha = if (manga.favorite) CommonEntryItemDefaults.BrowseFavoriteCoverAlpha else 1f,
-        coverBadgeStart = {
-            InLibraryBadge(enabled = manga.favorite)
-        },
-        onLongClick = onLongClick,
-        onClick = onClick,
-    )
+    Box(
+        modifier = Modifier
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown) {
+                    onClick()
+                    true
+                } else {
+                    false
+                }
+            },
+    ) {
+        EntryComfortableGridItem(
+            title = manga.title,
+            coverData = MangaCover(
+                mangaId = manga.id,
+                sourceId = manga.source,
+                isMangaFavorite = manga.favorite,
+                url = manga.thumbnailUrl,
+                lastModified = manga.coverLastModified,
+            ),
+            coverAlpha = if (manga.favorite) CommonEntryItemDefaults.BrowseFavoriteCoverAlpha else 1f,
+            coverBadgeStart = {
+                InLibraryBadge(enabled = manga.favorite)
+            },
+            onLongClick = onLongClick,
+            onClick = onClick,
+        )
+    }
 }

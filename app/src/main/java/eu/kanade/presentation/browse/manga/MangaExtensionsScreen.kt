@@ -3,6 +3,7 @@ package eu.kanade.presentation.browse.manga
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,8 +68,14 @@ import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.screens.EmptyScreenAction
 import tachiyomi.presentation.core.screens.LoadingScreen
 import tachiyomi.presentation.core.theme.header
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import tachiyomi.presentation.core.util.plus
 import tachiyomi.presentation.core.util.secondaryItemAlpha
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun MangaExtensionScreen(
@@ -283,6 +290,16 @@ private fun ExtensionItem(
     val (extension, installStep) = item
     BaseBrowseItem(
         modifier = modifier
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown) {
+                    onClickItem(extension)
+                    true
+                } else {
+                    false
+                }
+            }
             .combinedClickable(
                 onClick = { onClickItem(extension) },
                 onLongClick = { onLongClickItem(extension) },

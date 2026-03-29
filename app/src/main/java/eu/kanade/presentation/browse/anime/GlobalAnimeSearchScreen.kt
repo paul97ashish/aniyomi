@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusGroup
 import eu.kanade.presentation.browse.GlobalSearchErrorResultItem
 import eu.kanade.presentation.browse.GlobalSearchLoadingResultItem
 import eu.kanade.presentation.browse.GlobalSearchResultItem
@@ -80,7 +81,9 @@ internal fun GlobalSearchContent(
                     } ?: source.name,
                     subtitle = LocaleHelper.getLocalizedDisplayName(source.lang),
                     onClick = { onClickSource(source) },
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier
+                        .animateItem()
+                        .focusGroup(),
                 ) {
                     when (result) {
                         AnimeSearchItemResult.Loading -> {

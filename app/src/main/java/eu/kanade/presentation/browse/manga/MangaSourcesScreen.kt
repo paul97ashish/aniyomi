@@ -1,6 +1,7 @@
 package eu.kanade.presentation.browse.manga
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import eu.kanade.presentation.browse.manga.components.BaseMangaSourceItem
@@ -37,6 +43,7 @@ import tachiyomi.presentation.core.screens.EmptyScreen
 import tachiyomi.presentation.core.screens.LoadingScreen
 import tachiyomi.presentation.core.theme.header
 import tachiyomi.presentation.core.util.plus
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import tachiyomi.source.local.entries.manga.LocalMangaSource
 
 @Composable
@@ -119,7 +126,17 @@ private fun SourceItem(
     modifier: Modifier = Modifier,
 ) {
     BaseMangaSourceItem(
-        modifier = modifier,
+        modifier = modifier
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown) {
+                    onClickItem(source, Listing.Popular)
+                    true
+                } else {
+                    false
+                }
+            },
         source = source,
         onClickItem = { onClickItem(source, Listing.Popular) },
         onLongClickItem = { onLongClickItem(source) },
