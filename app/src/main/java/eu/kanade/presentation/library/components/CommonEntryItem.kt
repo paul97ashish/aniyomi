@@ -25,14 +25,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +55,7 @@ import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.BadgeGroup
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.selectedBackground
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import tachiyomi.domain.entries.EntryCover as EntryCoverModel
 
 object CommonEntryItemDefaults {
@@ -85,13 +97,17 @@ fun EntryCompactGridItem(
         isSelected = isSelected,
         onClick = onClick,
         onLongClick = onLongClick,
-    ) {
+    ) { isFocused ->
         EntryGridCover(
             cover = {
                 ItemCover.Book(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha),
+                        .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha)
+                        .graphicsLayer {
+                            scaleX = if (isFocused) 1.05f else 1f
+                            scaleY = if (isFocused) 1.05f else 1f
+                        },
                     data = coverData,
                 )
             },
@@ -191,14 +207,18 @@ fun EntryComfortableGridItem(
         isSelected = isSelected,
         onClick = onClick,
         onLongClick = onLongClick,
-    ) {
+    ) { isFocused ->
         Column {
             EntryGridCover(
                 cover = {
                     ItemCover.Book(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha),
+                            .alpha(if (isSelected) GRID_SELECTED_COVER_ALPHA else coverAlpha)
+                            .graphicsLayer {
+                                scaleX = if (isFocused) 1.05f else 1f
+                                scaleY = if (isFocused) 1.05f else 1f
+                            },
                         data = coverData,
                     )
                 },
@@ -295,8 +315,9 @@ private fun GridItemSelectable(
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable (isFocused: Boolean) -> Unit,
 ) {
+    var isFocused by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .clip(MaterialTheme.shapes.small)
@@ -304,6 +325,16 @@ private fun GridItemSelectable(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
+            .onFocusChanged { isFocused = it.isFocused }
+            .tvFocusHighlight(isFocused = isFocused)
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                    onClick()
+                    true
+                } else {
+                    false
+                }
+            }
             .selectedOutline(isSelected = isSelected, color = MaterialTheme.colorScheme.secondary)
             .padding(4.dp),
     ) {
@@ -313,7 +344,7 @@ private fun GridItemSelectable(
             LocalContentColor.current
         }
         CompositionLocalProvider(LocalContentColor provides contentColor) {
-            content()
+            content(isFocused)
         }
     }
 }
@@ -343,6 +374,7 @@ fun EntryListItem(
     containerHeight: Int = 0,
     modifier: Modifier = Modifier,
 ) {
+    var isFocused by remember { mutableStateOf(false) }
     Row(
         modifier = modifier
             .selectedBackground(isSelected)
@@ -359,6 +391,16 @@ fun EntryListItem(
                 onClick = onClick,
                 onLongClick = onLongClick,
             )
+            .onFocusChanged { isFocused = it.isFocused }
+            .tvFocusHighlight(isFocused = isFocused)
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                    onClick()
+                    true
+                } else {
+                    false
+                }
+            }
             .padding(horizontal = 16.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
