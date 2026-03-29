@@ -20,8 +20,12 @@ import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -30,7 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.secondaryItemAlpha
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun InfoScreen(
@@ -44,6 +50,15 @@ fun InfoScreen(
     onRejectClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val isTv = LocalIsTvUi.current
+    val acceptFocusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(acceptText) {
+        if (isTv) {
+            runCatching { acceptFocusRequester.requestFocus() }
+        }
+    }
+
     Scaffold(
         bottomBar = {
             val strokeWidth = Dp.Hairline
@@ -66,7 +81,10 @@ fun InfoScreen(
                     ),
             ) {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(acceptFocusRequester)
+                        .tvFocusHighlight(),
                     enabled = canAccept,
                     onClick = onAcceptClick,
                 ) {
@@ -74,7 +92,9 @@ fun InfoScreen(
                 }
                 if (rejectText != null && onRejectClick != null) {
                     OutlinedButton(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .tvFocusHighlight(),
                         onClick = onRejectClick,
                     ) {
                         Text(text = rejectText)

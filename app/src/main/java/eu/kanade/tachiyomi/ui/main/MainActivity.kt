@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.ui.unit.dp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -68,6 +69,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorDisposeBehavior
 import cafe.adriel.voyager.navigator.currentOrThrow
 import eu.kanade.domain.base.BasePreferences
+import eu.kanade.domain.ui.UiPreferences
 import eu.kanade.domain.source.anime.interactor.GetAnimeIncognitoState
 import eu.kanade.domain.source.manga.interactor.GetMangaIncognitoState
 import eu.kanade.presentation.components.AppStateBanners
@@ -141,6 +143,7 @@ class MainActivity : BaseActivity() {
 
     private val libraryPreferences: LibraryPreferences by injectLazy()
     private val preferences: BasePreferences by injectLazy()
+    private val uiPreferences: UiPreferences by injectLazy()
 
     private val animeDownloadCache: AnimeDownloadCache by injectLazy()
     private val downloadCache: MangaDownloadCache by injectLazy()
@@ -178,18 +181,22 @@ class MainActivity : BaseActivity() {
             val focusManager = LocalFocusManager.current
             val isTv = remember { packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) }
 
+            val overscanPadding by uiPreferences.tvOverscanPadding().collectAsState()
+
             CompositionLocalProvider(LocalIsTvUi provides isTv) {
             Box(
-                modifier = Modifier.onPreviewKeyEvent { event ->
-                    if (!isTv || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
-                    when (event.key) {
-                        Key.DirectionUp -> focusManager.moveFocus(FocusDirection.Up)
-                        Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
-                        Key.DirectionLeft -> focusManager.moveFocus(FocusDirection.Left)
-                        Key.DirectionRight -> focusManager.moveFocus(FocusDirection.Right)
-                        else -> false
+                modifier = Modifier
+                    .onPreviewKeyEvent { event ->
+                        if (!isTv || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                        when (event.key) {
+                            Key.DirectionUp -> focusManager.moveFocus(FocusDirection.Up)
+                            Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
+                            Key.DirectionLeft -> focusManager.moveFocus(FocusDirection.Left)
+                            Key.DirectionRight -> focusManager.moveFocus(FocusDirection.Right)
+                            else -> false
+                        }
                     }
-                },
+                    .padding(if (isTv) overscanPadding.dp else 0.dp),
             ) {
 
             val context = LocalContext.current

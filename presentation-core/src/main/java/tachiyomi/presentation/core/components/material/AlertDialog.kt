@@ -12,9 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.util.LocalIsTvUi
 
 @Composable
 fun AlertDialogContent(
@@ -24,6 +28,17 @@ fun AlertDialogContent(
     title: (@Composable () -> Unit)? = null,
     text: @Composable () -> Unit,
 ) {
+    val isTv = LocalIsTvUi.current
+    val focusManager = LocalFocusManager.current
+
+    // On TV, move focus into the dialog buttons area when it opens so the user
+    // can confirm/dismiss without using a mouse or touch.
+    LaunchedEffect(Unit) {
+        if (isTv) {
+            focusManager.moveFocus(FocusDirection.Next)
+        }
+    }
+
     AlertDialogContent(
         modifier = modifier,
         icon = icon,

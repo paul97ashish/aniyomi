@@ -22,11 +22,13 @@ import eu.kanade.presentation.more.settings.widget.AppThemeModePreferenceWidget
 import eu.kanade.presentation.more.settings.widget.AppThemePreferenceWidget
 import eu.kanade.tachiyomi.util.system.toast
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import tachiyomi.core.common.i18n.stringResource
 import tachiyomi.i18n.MR
 import tachiyomi.i18n.aniyomi.AYMR
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -104,6 +106,7 @@ object SettingsAppearanceScreen : SearchableSettings {
     ): Preference.PreferenceGroup {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
+        val isTv = LocalIsTvUi.current
 
         val now = remember { LocalDate.now() }
 
@@ -112,63 +115,83 @@ object SettingsAppearanceScreen : SearchableSettings {
             UiPreferences.dateFormat(dateFormat).format(now)
         }
 
-        return Preference.PreferenceGroup(
-            title = stringResource(MR.strings.pref_category_display),
-            preferenceItems = persistentListOf(
-                Preference.PreferenceItem.TextPreference(
-                    title = stringResource(MR.strings.pref_app_language),
-                    onClick = { navigator.push(AppLanguageScreen()) },
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = uiPreferences.tabletUiMode(),
-                    entries = TabletUiMode.entries
-                        .associateWith { stringResource(it.titleRes) }
-                        .toImmutableMap(),
-                    title = stringResource(MR.strings.pref_tablet_ui_mode),
-                    onValueChanged = {
-                        context.toast(MR.strings.requires_app_restart)
-                        true
-                    },
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = uiPreferences.startScreen(),
-                    entries = StartScreen.entries
-                        .associateWith { stringResource(it.titleRes) }
-                        .toImmutableMap(),
-                    title = stringResource(AYMR.strings.pref_start_screen),
-                    onValueChanged = {
-                        context.toast(MR.strings.requires_app_restart)
-                        true
-                    },
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = uiPreferences.navStyle(),
-                    entries = NavStyle.entries
-                        .associateWith { stringResource(it.titleRes) }
-                        .toImmutableMap(),
-                    title = "Navigation Style",
-                    onValueChanged = { true },
-                ),
-                Preference.PreferenceItem.ListPreference(
-                    preference = uiPreferences.dateFormat(),
-                    entries = DateFormats
-                        .associateWith {
-                            val formattedDate = UiPreferences.dateFormat(it).format(now)
-                            "${it.ifEmpty { stringResource(MR.strings.label_default) }} ($formattedDate)"
-                        }
-                        .toImmutableMap(),
-                    title = stringResource(MR.strings.pref_date_format),
-                ),
-                Preference.PreferenceItem.SwitchPreference(
-                    preference = uiPreferences.relativeTime(),
-                    title = stringResource(MR.strings.pref_relative_format),
-                    subtitle = stringResource(
-                        MR.strings.pref_relative_format_summary,
-                        stringResource(MR.strings.relative_time_today),
-                        formattedNow,
-                    ),
+        val overscanPadding by uiPreferences.tvOverscanPadding().collectAsState()
+
+        val baseItems = persistentListOf(
+            Preference.PreferenceItem.TextPreference(
+                title = stringResource(MR.strings.pref_app_language),
+                onClick = { navigator.push(AppLanguageScreen()) },
+            ),
+            Preference.PreferenceItem.ListPreference(
+                preference = uiPreferences.tabletUiMode(),
+                entries = TabletUiMode.entries
+                    .associateWith { stringResource(it.titleRes) }
+                    .toImmutableMap(),
+                title = stringResource(MR.strings.pref_tablet_ui_mode),
+                onValueChanged = {
+                    context.toast(MR.strings.requires_app_restart)
+                    true
+                },
+            ),
+            Preference.PreferenceItem.ListPreference(
+                preference = uiPreferences.startScreen(),
+                entries = StartScreen.entries
+                    .associateWith { stringResource(it.titleRes) }
+                    .toImmutableMap(),
+                title = stringResource(AYMR.strings.pref_start_screen),
+                onValueChanged = {
+                    context.toast(MR.strings.requires_app_restart)
+                    true
+                },
+            ),
+            Preference.PreferenceItem.ListPreference(
+                preference = uiPreferences.navStyle(),
+                entries = NavStyle.entries
+                    .associateWith { stringResource(it.titleRes) }
+                    .toImmutableMap(),
+                title = "Navigation Style",
+                onValueChanged = { true },
+            ),
+            Preference.PreferenceItem.ListPreference(
+                preference = uiPreferences.dateFormat(),
+                entries = DateFormats
+                    .associateWith {
+                        val formattedDate = UiPreferences.dateFormat(it).format(now)
+                        "${it.ifEmpty { stringResource(MR.strings.label_default) }} ($formattedDate)"
+                    }
+                    .toImmutableMap(),
+                title = stringResource(MR.strings.pref_date_format),
+            ),
+            Preference.PreferenceItem.SwitchPreference(
+                preference = uiPreferences.relativeTime(),
+                title = stringResource(MR.strings.pref_relative_format),
+                subtitle = stringResource(
+                    MR.strings.pref_relative_format_summary,
+                    stringResource(MR.strings.relative_time_today),
+                    formattedNow,
                 ),
             ),
+        )
+
+        val preferenceItems = if (isTv) {
+            (baseItems + Preference.PreferenceItem.SliderPreference(
+                value = overscanPadding,
+                valueRange = 0..48 step 4,
+                steps = 11, // discrete ticks: 0,4,8,...,48
+                title = "TV Overscan Padding",
+                subtitle = "$overscanPadding dp",
+                onValueChanged = {
+                    uiPreferences.tvOverscanPadding().set(it)
+                    true
+                },
+            )).toImmutableList()
+        } else {
+            baseItems
+        }
+
+        return Preference.PreferenceGroup(
+            title = stringResource(MR.strings.pref_category_display),
+            preferenceItems = preferenceItems,
         )
     }
 }
