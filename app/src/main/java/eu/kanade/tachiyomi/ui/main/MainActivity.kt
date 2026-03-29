@@ -11,11 +11,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.os.SystemClock
-import android.view.KeyEvent
-import android.view.MotionEvent
 import android.view.View
-import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
@@ -25,6 +21,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -127,6 +131,7 @@ import tachiyomi.domain.library.service.LibraryPreferences
 import tachiyomi.domain.release.interactor.GetApplicationRelease
 import tachiyomi.i18n.MR
 import tachiyomi.presentation.core.components.material.Scaffold
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.collectAsState
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
@@ -146,12 +151,6 @@ class MainActivity : BaseActivity() {
 
     // To be checked by splash screen. If true then splash screen will be removed.
     var ready = false
-
-    // TV cursor — only non-null when running on Android TV
-    private var tvCursorView: TvCursorView? = null
-
-    // Pixels to move per D-pad event; grows with held events
-    private var cursorSpeed = BASE_CURSOR_SPEED
 
     private var navigator: Navigator? = null
 
@@ -176,6 +175,23 @@ class MainActivity : BaseActivity() {
         }
 
         setComposeContent {
+            val focusManager = LocalFocusManager.current
+            val isTv = remember { packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK) }
+
+            CompositionLocalProvider(LocalIsTvUi provides isTv) {
+            Box(
+                modifier = Modifier.onPreviewKeyEvent { event ->
+                    if (!isTv || event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                    when (event.key) {
+                        Key.DirectionUp -> focusManager.moveFocus(FocusDirection.Up)
+                        Key.DirectionDown -> focusManager.moveFocus(FocusDirection.Down)
+                        Key.DirectionLeft -> focusManager.moveFocus(FocusDirection.Left)
+                        Key.DirectionRight -> focusManager.moveFocus(FocusDirection.Right)
+                        else -> false
+                    }
+                },
+            ) {
+
             val context = LocalContext.current
 
             var incognito by remember { mutableStateOf(getMangaIncognitoState.await(null)) }
@@ -316,6 +332,9 @@ class MainActivity : BaseActivity() {
                     },
                 )
             }
+
+            } // end Box
+            } // end CompositionLocalProvider
         }
 
         val startTime = System.currentTimeMillis()
@@ -347,69 +366,6 @@ class MainActivity : BaseActivity() {
                 ExternalIntents.externalIntents.onActivityResult(result.data)
             }
         }
-        // TV cursor overlay — added after Compose content so it draws on top
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)) {
-            val root = window.decorView as FrameLayout
-            val cursor = TvCursorView(this)
-            root.addView(
-                cursor,
-                FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                ),
-            )
-            tvCursorView = cursor
-        }
-    }
-
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        val cursor = tvCursorView ?: return super.dispatchKeyEvent(event)
-
-        val dx: Float
-        val dy: Float
-        when (event.keyCode) {
-            KeyEvent.KEYCODE_DPAD_LEFT -> {
-                dx = -cursorSpeed
-                dy = 0f
-            }
-            KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                dx = cursorSpeed
-                dy = 0f
-            }
-            KeyEvent.KEYCODE_DPAD_UP -> {
-                dx = 0f
-                dy = -cursorSpeed
-            }
-            KeyEvent.KEYCODE_DPAD_DOWN -> {
-                dx = 0f
-                dy = cursorSpeed
-            }
-            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
-                if (event.action == KeyEvent.ACTION_UP) injectTap(cursor.cursorX, cursor.cursorY)
-                return true
-            }
-            else -> return super.dispatchKeyEvent(event)
-        }
-
-        // Accelerate while key is held
-        cursorSpeed = if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount > 0) {
-            (cursorSpeed + CURSOR_ACCELERATION).coerceAtMost(MAX_CURSOR_SPEED)
-        } else {
-            BASE_CURSOR_SPEED
-        }
-
-        cursor.moveTo(cursor.cursorX + dx, cursor.cursorY + dy)
-        return true
-    }
-
-    private fun injectTap(x: Float, y: Float) {
-        val now = SystemClock.uptimeMillis()
-        val down = MotionEvent.obtain(now, now, MotionEvent.ACTION_DOWN, x, y, 0)
-        val up = MotionEvent.obtain(now, now + 50L, MotionEvent.ACTION_UP, x, y, 0)
-        window.decorView.dispatchTouchEvent(down)
-        window.decorView.dispatchTouchEvent(up)
-        down.recycle()
-        up.recycle()
     }
 
     override fun onProvideAssistContent(outContent: AssistContent) {
@@ -701,8 +657,3 @@ class MainActivity : BaseActivity() {
 private const val SPLASH_MIN_DURATION = 500 // ms
 private const val SPLASH_MAX_DURATION = 5000 // ms
 private const val SPLASH_EXIT_ANIM_DURATION = 400L // ms
-
-// TV D-pad cursor
-private const val BASE_CURSOR_SPEED = 12f // px per event at rest
-private const val CURSOR_ACCELERATION = 4f // px added per repeated event
-private const val MAX_CURSOR_SPEED = 60f // px per event at max speed
