@@ -31,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,12 +39,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
+import tachiyomi.presentation.core.util.LocalIsTvUi
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastMap
@@ -279,6 +284,15 @@ private fun MangaScreenSmallImpl(
         )
     }
 
+    val isTvUi = LocalIsTvUi.current
+    val fabFocusRequester = remember { FocusRequester() }
+    // On TV, request focus on the Read FAB once chapters are available.
+    LaunchedEffect(isTvUi, chapters.isNotEmpty()) {
+        if (isTvUi && chapters.isNotEmpty()) {
+            runCatching { fabFocusRequester.requestFocus() }
+        }
+    }
+
     BackHandler(onBack = {
         if (isAnySelected) {
             onAllChapterSelected(false)
@@ -363,6 +377,9 @@ private fun MangaScreenSmallImpl(
                     icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
                     onClick = onContinueReading,
                     expanded = chapterListState.shouldExpandFAB(),
+                    modifier = Modifier
+                        .focusRequester(fabFocusRequester)
+                        .tvFocusHighlight(),
                 )
             }
         },
@@ -534,6 +551,15 @@ fun MangaScreenLargeImpl(
 
     val chapterListState = rememberLazyListState()
 
+    val isTvUiLarge = LocalIsTvUi.current
+    val fabFocusRequesterLarge = remember { FocusRequester() }
+    // On TV, request focus on the Read FAB once chapters are available.
+    LaunchedEffect(isTvUiLarge, chapters.isNotEmpty()) {
+        if (isTvUiLarge && chapters.isNotEmpty()) {
+            runCatching { fabFocusRequesterLarge.requestFocus() }
+        }
+    }
+
     BackHandler(onBack = {
         if (isAnySelected) {
             onAllChapterSelected(false)
@@ -612,6 +638,9 @@ fun MangaScreenLargeImpl(
                     icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
                     onClick = onContinueReading,
                     expanded = chapterListState.shouldExpandFAB(),
+                    modifier = Modifier
+                        .focusRequester(fabFocusRequesterLarge)
+                        .tvFocusHighlight(),
                 )
             }
         },

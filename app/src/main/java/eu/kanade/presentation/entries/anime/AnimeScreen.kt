@@ -43,6 +43,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
@@ -100,7 +102,9 @@ import tachiyomi.presentation.core.components.material.ExtendedFloatingActionBut
 import tachiyomi.presentation.core.components.material.PullRefresh
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.shouldExpandFAB
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import tachiyomi.source.local.entries.anime.isLocal
 import java.time.Instant
 import java.util.concurrent.TimeUnit
@@ -342,6 +346,15 @@ private fun AnimeScreenSmallImpl(
         }
     }
 
+    val isTvUi = LocalIsTvUi.current
+    val fabFocusRequester = remember { FocusRequester() }
+    // On TV, request focus on the Play FAB once episodes are available.
+    LaunchedEffect(isTvUi, episodes.isNotEmpty()) {
+        if (isTvUi && episodes.isNotEmpty()) {
+            runCatching { fabFocusRequester.requestFocus() }
+        }
+    }
+
     BackHandler(onBack = {
         if (isAnySelected) {
             onAllEpisodeSelected(false)
@@ -440,6 +453,9 @@ private fun AnimeScreenSmallImpl(
                         },
                         onClick = onContinueWatching,
                         expanded = itemListState.shouldExpandFAB(),
+                        modifier = Modifier
+                            .focusRequester(fabFocusRequester)
+                            .tvFocusHighlight(),
                     )
                 }
             },
@@ -689,6 +705,15 @@ fun AnimeScreenLargeImpl(
         }
     }
 
+    val isTvUiLarge = LocalIsTvUi.current
+    val fabFocusRequesterLarge = remember { FocusRequester() }
+    // On TV, request focus on the Play FAB once episodes are available.
+    LaunchedEffect(isTvUiLarge, episodes.isNotEmpty()) {
+        if (isTvUiLarge && episodes.isNotEmpty()) {
+            runCatching { fabFocusRequesterLarge.requestFocus() }
+        }
+    }
+
     BackHandler(onBack = {
         if (isAnySelected) {
             onAllEpisodeSelected(false)
@@ -773,6 +798,9 @@ fun AnimeScreenLargeImpl(
                         icon = { Icon(imageVector = Icons.Filled.PlayArrow, contentDescription = null) },
                         onClick = onContinueWatching,
                         expanded = itemListState.shouldExpandFAB(),
+                        modifier = Modifier
+                            .focusRequester(fabFocusRequesterLarge)
+                            .tvFocusHighlight(),
                     )
                 }
             },
