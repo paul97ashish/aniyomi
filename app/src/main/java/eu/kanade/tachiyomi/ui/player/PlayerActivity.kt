@@ -839,6 +839,9 @@ class PlayerActivity : BaseActivity() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        val isTv = packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
+        val controlsFocusActive = isTv && viewModel.tvControlFocusMode.value
+
         when (keyCode) {
             KeyEvent.KEYCODE_VOLUME_UP -> {
                 viewModel.changeVolumeBy(1)
@@ -848,8 +851,37 @@ class PlayerActivity : BaseActivity() {
                 viewModel.changeVolumeBy(-1)
                 viewModel.displayVolumeSlider()
             }
-            KeyEvent.KEYCODE_DPAD_LEFT -> viewModel.handleLeftDoubleTap()
-            KeyEvent.KEYCODE_DPAD_RIGHT -> viewModel.handleRightDoubleTap()
+            KeyEvent.KEYCODE_DPAD_LEFT -> {
+                if (controlsFocusActive) {
+                    // Pass to Compose focus manager via super so onPreviewKeyEvent handles it
+                    return super.onKeyDown(keyCode, event)
+                }
+                viewModel.handleLeftDoubleTap()
+            }
+            KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                if (controlsFocusActive) {
+                    return super.onKeyDown(keyCode, event)
+                }
+                viewModel.handleRightDoubleTap()
+            }
+            KeyEvent.KEYCODE_DPAD_UP -> {
+                if (isTv && !controlsFocusActive) {
+                    viewModel.showControls()
+                    return true
+                }
+                if (controlsFocusActive) {
+                    return super.onKeyDown(keyCode, event)
+                }
+            }
+            KeyEvent.KEYCODE_DPAD_DOWN -> {
+                if (isTv && !controlsFocusActive) {
+                    viewModel.showControls()
+                    return true
+                }
+                if (controlsFocusActive) {
+                    return super.onKeyDown(keyCode, event)
+                }
+            }
             KeyEvent.KEYCODE_SPACE -> viewModel.pauseUnpause()
             KeyEvent.KEYCODE_MEDIA_STOP -> finishAndRemoveTask()
 

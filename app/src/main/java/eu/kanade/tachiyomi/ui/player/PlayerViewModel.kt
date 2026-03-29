@@ -254,6 +254,7 @@ class PlayerViewModel @JvmOverloads constructor(
 
     private val _controlsShown = MutableStateFlow(!playerPreferences.hideControls().get())
     val controlsShown = _controlsShown.asStateFlow()
+    val tvControlFocusMode = MutableStateFlow(!playerPreferences.hideControls().get())
     private val _seekBarShown = MutableStateFlow(!playerPreferences.hideControls().get())
     val seekBarShown = _seekBarShown.asStateFlow()
     private val _areControlsLocked = MutableStateFlow(false)
@@ -603,11 +604,13 @@ class PlayerViewModel @JvmOverloads constructor(
             activity.windowInsetsController.show(WindowInsetsCompat.Type.statusBars())
         }
         _controlsShown.update { true }
+        tvControlFocusMode.update { true }
     }
 
     fun hideControls() {
         activity.windowInsetsController.hide(WindowInsetsCompat.Type.statusBars())
         _controlsShown.update { false }
+        tvControlFocusMode.update { false }
     }
 
     fun hideSeekBar() {
