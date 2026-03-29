@@ -2,7 +2,9 @@ package eu.kanade.presentation.library.anime
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastAny
@@ -27,11 +29,13 @@ internal fun AnimeLibraryComfortableGrid(
     onClickContinueWatching: ((LibraryAnime) -> Unit)?,
     searchQuery: String?,
     onGlobalSearchClicked: () -> Unit,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
 ) {
     LazyLibraryGrid(
         modifier = Modifier.fillMaxSize(),
         columns = columns,
         contentPadding = contentPadding,
+        state = lazyGridState,
     ) {
         globalSearchItem(searchQuery, onGlobalSearchClicked)
 

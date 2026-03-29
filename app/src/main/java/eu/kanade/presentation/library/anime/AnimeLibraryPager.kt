@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.rememberScrollState
@@ -72,6 +73,7 @@ fun AnimeLibraryPager(
             val configuration = LocalConfiguration.current
             val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             val columns by remember(isLandscape) { getColumnsForOrientation(isLandscape) }
+            val lazyGridState = rememberLazyGridState()
 
             when (displayMode) {
                 LibraryDisplayMode.List -> {
@@ -101,6 +103,7 @@ fun AnimeLibraryPager(
                         onLongClick = onLongClickAnime,
                         searchQuery = searchQuery,
                         onGlobalSearchClicked = onGlobalSearchClicked,
+                        lazyGridState = lazyGridState,
                     )
                 }
 
@@ -115,6 +118,7 @@ fun AnimeLibraryPager(
                         onClickContinueWatching = onClickContinueWatching,
                         searchQuery = searchQuery,
                         onGlobalSearchClicked = onGlobalSearchClicked,
+                        lazyGridState = lazyGridState,
                     )
                 }
             }
