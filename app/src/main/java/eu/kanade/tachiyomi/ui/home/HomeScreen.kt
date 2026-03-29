@@ -24,8 +24,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,7 +65,9 @@ import tachiyomi.presentation.core.components.material.NavigationBar
 import tachiyomi.presentation.core.components.material.NavigationRail
 import tachiyomi.presentation.core.components.material.Scaffold
 import tachiyomi.presentation.core.i18n.pluralStringResource
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.collectAsState
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 import uy.kohesive.injekt.injectLazy
@@ -82,18 +89,24 @@ object HomeScreen : Screen() {
     override fun Content() {
         val navStyle by uiPreferences.navStyle().collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val isTv = LocalIsTvUi.current
         TabNavigator(
             tab = defaultTab,
             key = TAB_NAVIGATOR_KEY,
         ) { tabNavigator ->
+            val tabFocusRequesters = remember { List(navStyle.tabs.size) { FocusRequester() } }
             // Provide usable navigator to content screen
             CompositionLocalProvider(LocalNavigator provides navigator) {
                 Scaffold(
                     startBar = {
                         if (isTabletUi()) {
-                            NavigationRail {
-                                navStyle.tabs.fastForEach {
-                                    NavigationRailItem(it)
+                            NavigationRail(
+                                modifier = Modifier.focusProperties {
+                                    exit = { if (it == FocusDirection.Right) FocusRequester.Default else FocusRequester.Cancel }
+                                },
+                            ) {
+                                navStyle.tabs.forEachIndexed { index, tab ->
+                                    NavigationRailItem(tab, tabFocusRequesters[index])
                                 }
                             }
                         }
@@ -197,6 +210,10 @@ object HomeScreen : Screen() {
                         }
                     }
                 }
+                if (isTv) {
+                    val defaultTabIndex = navStyle.tabs.indexOf(defaultTab).coerceAtLeast(0)
+                    tabFocusRequesters.getOrNull(defaultTabIndex)?.requestFocus()
+                }
             }
         }
     }
@@ -230,12 +247,20 @@ object HomeScreen : Screen() {
     }
 
     @Composable
-    fun NavigationRailItem(tab: eu.kanade.presentation.util.Tab) {
+    fun NavigationRailItem(tab: eu.kanade.presentation.util.Tab, focusRequester: FocusRequester? = null) {
         val tabNavigator = LocalTabNavigator.current
         val navigator = LocalNavigator.currentOrThrow
         val scope = rememberCoroutineScope()
         val selected = tabNavigator.current::class == tab::class
+        val itemModifier = if (focusRequester != null) {
+            Modifier
+                .focusRequester(focusRequester)
+                .tvFocusHighlight()
+        } else {
+            Modifier
+        }
         NavigationRailItem(
+            modifier = itemModifier,
             selected = selected,
             onClick = {
                 if (!selected) {

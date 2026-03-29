@@ -17,6 +17,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusGroup
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -46,7 +47,8 @@ fun NavigationRail(
                 .windowInsetsPadding(windowInsets)
                 .widthIn(min = 80.dp)
                 .padding(vertical = MaterialTheme.padding.extraSmall)
-                .selectableGroup(),
+                .selectableGroup()
+                .focusGroup(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
                 MaterialTheme.padding.extraSmall,

@@ -18,6 +18,7 @@
 
 package tachiyomi.presentation.core.components.material
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.exclude
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusGroup
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -280,7 +283,9 @@ private fun ScaffoldLayout(
                     ),
                     end = insets.calculateEndPadding((this@SubcomposeLayout).layoutDirection),
                 )
-                content(innerPadding)
+                Box(modifier = Modifier.fillMaxSize().focusGroup()) {
+                    content(innerPadding)
+                }
             }.fastMap { it.measure(looseConstraints) }
 
             // Placing to control drawing order to match default elevation of each placeable
