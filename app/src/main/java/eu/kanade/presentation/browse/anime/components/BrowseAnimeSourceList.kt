@@ -1,5 +1,6 @@
 package eu.kanade.presentation.browse.anime.components
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,6 +8,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -19,6 +26,7 @@ import kotlinx.coroutines.flow.StateFlow
 import tachiyomi.domain.entries.anime.model.Anime
 import tachiyomi.domain.entries.anime.model.AnimeCover
 import tachiyomi.presentation.core.util.plus
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun BrowseAnimeSourceList(
@@ -91,5 +99,15 @@ private fun BrowseAnimeSourceListItem(
         onClick = onClick,
         entries = entries,
         containerHeight = containerHeight,
+        modifier = Modifier
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                    onClick(); true
+                } else {
+                    false
+                }
+            },
     )
 }
