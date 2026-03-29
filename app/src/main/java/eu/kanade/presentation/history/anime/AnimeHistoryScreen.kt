@@ -1,5 +1,6 @@
 package eu.kanade.presentation.history.anime
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
@@ -89,7 +90,9 @@ private fun AnimeHistoryScreenContent(
             when (item) {
                 is AnimeHistoryUiModel.Header -> {
                     ListGroupHeader(
-                        modifier = Modifier.animateItemFastScroll(),
+                        modifier = Modifier
+                            .animateItemFastScroll()
+                            .focusable(enabled = false),
                         text = relativeDateText(item.date),
                     )
                 }

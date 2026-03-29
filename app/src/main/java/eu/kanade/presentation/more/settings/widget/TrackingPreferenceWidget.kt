@@ -1,6 +1,7 @@
 package eu.kanade.presentation.more.settings.widget
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import eu.kanade.presentation.more.settings.LocalPreferenceHighlighted
 import eu.kanade.presentation.track.components.TrackLogoIcon
 import eu.kanade.tachiyomi.data.track.Tracker
@@ -33,6 +40,16 @@ fun TrackingPreferenceWidget(
     Box(modifier = Modifier.highlightBackground(highlighted)) {
         Row(
             modifier = modifier
+                .focusable()
+                .tvFocusHighlight()
+                .onKeyEvent { event ->
+                    if (event.key == Key.Enter && event.type == KeyEventType.KeyDown && onClick != null) {
+                        onClick.invoke()
+                        true
+                    } else {
+                        false
+                    }
+                }
                 .clickable(enabled = onClick != null, onClick = { onClick?.invoke() })
                 .fillMaxWidth()
                 .padding(horizontal = PrefsHorizontalPadding, vertical = 8.dp),

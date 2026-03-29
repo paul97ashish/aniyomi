@@ -1,5 +1,6 @@
 package eu.kanade.presentation.history.manga
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
@@ -88,7 +89,9 @@ private fun MangaHistoryScreenContent(
             when (item) {
                 is MangaHistoryUiModel.Header -> {
                     ListGroupHeader(
-                        modifier = Modifier.animateItemFastScroll(),
+                        modifier = Modifier
+                            .animateItemFastScroll()
+                            .focusable(enabled = false),
                         text = relativeDateText(item.date),
                     )
                 }

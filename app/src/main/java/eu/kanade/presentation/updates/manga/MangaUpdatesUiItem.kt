@@ -1,6 +1,7 @@
 package eu.kanade.presentation.updates.manga
 
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontStyle
@@ -48,6 +54,7 @@ import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
 import tachiyomi.presentation.core.util.selectedBackground
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 internal fun LazyListScope.mangaUpdatesLastUpdatedItem(
     lastUpdated: Long,
@@ -92,7 +99,9 @@ internal fun LazyListScope.mangaUpdatesUiItems(
         when (item) {
             is MangaUpdatesUiModel.Header -> {
                 ListGroupHeader(
-                    modifier = Modifier.animateItemFastScroll(),
+                    modifier = Modifier
+                        .animateItemFastScroll()
+                        .focusable(enabled = false),
                     text = relativeDateText(item.date),
                 )
             }
@@ -156,6 +165,16 @@ private fun MangaUpdatesUiItem(
     Row(
         modifier = modifier
             .selectedBackground(selected)
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { event ->
+                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown) {
+                    onClick()
+                    true
+                } else {
+                    false
+                }
+            }
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = {
