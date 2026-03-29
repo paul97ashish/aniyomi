@@ -18,6 +18,7 @@
 package eu.kanade.tachiyomi.ui.player.controls.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -34,9 +35,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import dev.vivvvek.seeker.Seeker
 import dev.vivvvek.seeker.SeekerDefaults
 import dev.vivvvek.seeker.Segment
@@ -74,10 +81,37 @@ fun SeekbarWithTimers(
     durationTimerOnCLick: () -> Unit,
     chapters: ImmutableList<Segment>,
     modifier: Modifier = Modifier,
+    onPlayPauseClick: () -> Unit = {},
 ) {
     val clickEvent = LocalPlayerButtonsClickEvent.current
     Row(
-        modifier = modifier.height(48.dp),
+        modifier = modifier
+            .height(48.dp)
+            .focusable()
+            .tvFocusHighlight()
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyDown) {
+                    when (keyEvent.key) {
+                        Key.DirectionLeft -> {
+                            onValueChange((position - 10f).coerceAtLeast(0f))
+                            onValueChangeFinished()
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            onValueChange((position + 10f).coerceAtMost(duration))
+                            onValueChangeFinished()
+                            true
+                        }
+                        Key.Enter, Key.NumPadEnter -> {
+                            onPlayPauseClick()
+                            true
+                        }
+                        else -> false
+                    }
+                } else {
+                    false
+                }
+            },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.extraSmall),
     ) {

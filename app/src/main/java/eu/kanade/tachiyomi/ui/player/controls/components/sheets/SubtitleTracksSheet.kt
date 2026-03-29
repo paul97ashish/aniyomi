@@ -43,6 +43,7 @@ import kotlinx.collections.immutable.ImmutableList
 import tachiyomi.i18n.aniyomi.AYMR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun SubtitlesSheet(
@@ -120,6 +121,7 @@ fun SubtitleTrackRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .tvFocusHighlight()
             .clickable(onClick = onClick)
             .padding(start = MaterialTheme.padding.small, end = MaterialTheme.padding.medium),
         verticalAlignment = Alignment.CenterVertically,

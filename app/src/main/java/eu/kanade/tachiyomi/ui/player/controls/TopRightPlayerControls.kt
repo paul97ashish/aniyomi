@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import eu.kanade.tachiyomi.ui.player.controls.components.AutoPlaySwitch
 import eu.kanade.tachiyomi.ui.player.controls.components.ControlsButton
 import tachiyomi.presentation.core.components.material.padding
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun TopRightPlayerControls(
@@ -69,19 +70,22 @@ fun TopRightPlayerControls(
             onToggleAutoPlay = onToggleAutoPlay,
             modifier = Modifier
                 .padding(vertical = MaterialTheme.padding.medium, horizontal = MaterialTheme.padding.mediumSmall)
-                .size(width = 48.dp, height = 24.dp),
+                .size(width = 48.dp, height = 24.dp)
+                .tvFocusHighlight(),
         )
         ControlsButton(
             icon = Icons.Default.Subtitles,
             onClick = onSubtitlesClick,
             onLongClick = onSubtitlesLongClick,
             horizontalSpacing = MaterialTheme.padding.mediumSmall,
+            modifier = Modifier.tvFocusHighlight(),
         )
         ControlsButton(
             icon = Icons.Default.Audiotrack,
             onClick = onAudioClick,
             onLongClick = onAudioLongClick,
             horizontalSpacing = MaterialTheme.padding.mediumSmall,
+            modifier = Modifier.tvFocusHighlight(),
         )
         if (isEpisodeOnline == true) {
             ControlsButton(
@@ -89,6 +93,7 @@ fun TopRightPlayerControls(
                 onClick = onQualityClick,
                 onLongClick = onQualityClick,
                 horizontalSpacing = MaterialTheme.padding.mediumSmall,
+                modifier = Modifier.tvFocusHighlight(),
             )
         }
         ControlsButton(
@@ -96,6 +101,7 @@ fun TopRightPlayerControls(
             onClick = onMoreClick,
             onLongClick = onMoreLongClick,
             horizontalSpacing = MaterialTheme.padding.mediumSmall,
+            modifier = Modifier.tvFocusHighlight(),
         )
     }
 }

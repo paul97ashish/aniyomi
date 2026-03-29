@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.ui.player.controls.components.dialogs
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +21,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,12 +29,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import tachiyomi.presentation.core.util.LocalIsTvUi
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import eu.kanade.presentation.entries.components.DotSeparatorText
 import eu.kanade.presentation.util.formatEpisodeNumber
 import eu.kanade.tachiyomi.data.database.models.anime.Episode
@@ -61,8 +70,13 @@ fun EpisodeListDialog(
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
+    val isTv = LocalIsTvUi.current
     val itemScrollIndex = (episodeList.size - currentEpisodeIndex) - 1
     val episodeListState = rememberLazyListState(initialFirstVisibleItemIndex = itemScrollIndex)
+
+    LaunchedEffect(Unit) {
+        episodeListState.animateScrollToItem(itemScrollIndex)
+    }
 
     PlayerDialog(
         title = stringResource(AYMR.strings.episodes),
@@ -131,6 +145,7 @@ private fun EpisodeListItem(
     onFillermarkClicked: (Long?, Boolean) -> Unit,
     onEpisodeClicked: (Long?) -> Unit,
 ) {
+    val isTv = LocalIsTvUi.current
     var isBookmarked by remember { mutableStateOf(episode.bookmark) }
     var isFillermarked by remember { mutableStateOf(episode.fillermark) }
     var textHeight by remember { mutableStateOf(0) }
@@ -166,6 +181,21 @@ private fun EpisodeListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .then(if (isTv) Modifier.focusable().tvFocusHighlight() else Modifier)
+            .then(
+                if (isTv) {
+                    Modifier.onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Enter) {
+                            onEpisodeClicked(episode.id)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                } else {
+                    Modifier
+                },
+            )
             .clickable(onClick = { onEpisodeClicked(episode.id) })
             .padding(vertical = MaterialTheme.padding.extraSmall),
     ) {

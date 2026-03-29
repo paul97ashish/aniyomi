@@ -48,9 +48,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -81,6 +90,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.update
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import tachiyomi.presentation.core.util.collectAsState
 import tachiyomi.source.local.entries.anime.LocalAnimeSource
 import uy.kohesive.injekt.Injekt
@@ -101,6 +111,9 @@ fun PlayerControls(
     val audioPreferences = remember { Injekt.get<AudioPreferences>() }
     val subtitlePreferences = remember { Injekt.get<SubtitlePreferences>() }
     val interactionSource = remember { MutableInteractionSource() }
+    val isTv = LocalIsTvUi.current
+    val focusManager = LocalFocusManager.current
+    val playPauseFocusRequester = remember { FocusRequester() }
 
     val controlsShown by viewModel.controlsShown.collectAsState()
     val areControlsLocked by viewModel.areControlsLocked.collectAsState()
@@ -136,6 +149,12 @@ fun PlayerControls(
         }
     }
 
+    LaunchedEffect(controlsShown) {
+        if (controlsShown && isTv) {
+            playPauseFocusRequester.requestFocus()
+        }
+    }
+
     val transparentOverlay by animateFloatAsState(
         if (controlsShown && !areControlsLocked) .8f else 0f,
         animationSpec = playerControlsExitAnimationSpec(),
@@ -166,7 +185,28 @@ fun PlayerControls(
                         ),
                         alpha = transparentOverlay,
                     )
-                    .padding(horizontal = MaterialTheme.padding.medium),
+                    .padding(horizontal = MaterialTheme.padding.medium)
+                    .onPreviewKeyEvent { keyEvent ->
+                        if (isTv && controlsShown && keyEvent.type == KeyEventType.KeyDown) {
+                            when (keyEvent.key.nativeKeyCode) {
+                                android.view.KeyEvent.KEYCODE_DPAD_UP -> {
+                                    focusManager.moveFocus(FocusDirection.Up); true
+                                }
+                                android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
+                                    focusManager.moveFocus(FocusDirection.Down); true
+                                }
+                                android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
+                                    focusManager.moveFocus(FocusDirection.Left); true
+                                }
+                                android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
+                                    focusManager.moveFocus(FocusDirection.Right); true
+                                }
+                                else -> false
+                            }
+                        } else {
+                            false
+                        }
+                    },
             ) {
                 val (topLeftControls, topRightControls) = createRefs()
                 val (volumeSlider, brightnessSlider) = createRefs()
@@ -353,6 +393,7 @@ fun PlayerControls(
                         paused = paused,
                         gestureSeekAmount = gestureSeekAmount,
                         onPlayPauseClick = viewModel::pauseUnpause,
+                        playPauseFocusRequester = playPauseFocusRequester,
                         enter = fadeIn(playerControlsEnterAnimationSpec()),
                         exit = fadeOut(playerControlsExitAnimationSpec()),
                     )
@@ -392,6 +433,7 @@ fun PlayerControls(
                         durationTimerOnCLick = { playerPreferences.invertDuration().set(!invertDuration) },
                         positionTimerOnClick = {},
                         chapters = chapters.map { it.toSegment() }.toImmutableList(),
+                        onPlayPauseClick = viewModel::pauseUnpause,
                     )
                 }
                 val mediaTitle by viewModel.mediaTitle.collectAsState()

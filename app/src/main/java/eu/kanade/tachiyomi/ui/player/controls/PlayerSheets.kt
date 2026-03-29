@@ -21,7 +21,11 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
 import dev.vivvvek.seeker.Segment
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import eu.kanade.tachiyomi.ui.player.ArtType
 import eu.kanade.tachiyomi.ui.player.Decoder
 import eu.kanade.tachiyomi.ui.player.Panels
@@ -98,6 +102,14 @@ fun PlayerSheets(
     onDismissRequest: () -> Unit,
     dismissSheet: Boolean,
 ) {
+    val isTv = LocalIsTvUi.current
+    val firstItemFocusRequester = remember { FocusRequester() }
+    LaunchedEffect(sheetShown) {
+        if (isTv && sheetShown != Sheets.None) {
+            runCatching { firstItemFocusRequester.requestFocus() }
+        }
+    }
+
     when (sheetShown) {
         Sheets.None -> {}
         Sheets.SubtitleTracks -> {

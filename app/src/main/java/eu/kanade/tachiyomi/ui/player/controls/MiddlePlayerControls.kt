@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +39,7 @@ import `is`.xyz.mpv.Utils
 import tachiyomi.i18n.aniyomi.AYMR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import kotlin.math.abs
 
 @Composable
@@ -61,6 +64,7 @@ fun MiddlePlayerControls(
 
     enter: EnterTransition,
     exit: ExitTransition,
+    playPauseFocusRequester: FocusRequester = remember { FocusRequester() },
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -79,6 +83,7 @@ fun MiddlePlayerControls(
                     onClick = onSkipPrevious,
                     iconSize = 48.dp,
                     enabled = hasPrevious,
+                    modifier = Modifier.tvFocusHighlight(),
                 )
             }
         }
@@ -113,6 +118,8 @@ fun MiddlePlayerControls(
                         painter = rememberAnimatedVectorPainter(icon, !paused),
                         modifier = Modifier
                             .size(96.dp)
+                            .focusRequester(playPauseFocusRequester)
+                            .tvFocusHighlight()
                             .clip(CircleShape)
                             .clickable(
                                 interaction,
@@ -137,6 +144,7 @@ fun MiddlePlayerControls(
                     onClick = onSkipNext,
                     iconSize = 48.dp,
                     enabled = hasNext,
+                    modifier = Modifier.tvFocusHighlight(),
                 )
             }
         }

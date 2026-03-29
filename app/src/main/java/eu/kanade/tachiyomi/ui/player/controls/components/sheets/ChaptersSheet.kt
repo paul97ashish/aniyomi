@@ -35,6 +35,7 @@ import kotlinx.collections.immutable.ImmutableList
 import tachiyomi.i18n.aniyomi.AYMR
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun ChaptersSheet(
@@ -78,6 +79,7 @@ fun ChapterTrack(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .tvFocusHighlight()
             .clickable(onClick = onClick)
             .padding(vertical = MaterialTheme.padding.small, horizontal = MaterialTheme.padding.medium),
         horizontalArrangement = Arrangement.SpaceBetween,

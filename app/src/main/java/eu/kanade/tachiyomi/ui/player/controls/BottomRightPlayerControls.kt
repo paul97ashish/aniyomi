@@ -28,6 +28,7 @@ import eu.kanade.tachiyomi.ui.player.controls.components.FilledControlsButton
 import eu.kanade.tachiyomi.ui.player.execute
 import eu.kanade.tachiyomi.ui.player.executeLongPress
 import tachiyomi.domain.custombuttons.model.CustomButton
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun BottomRightPlayerControls(
@@ -46,12 +47,14 @@ fun BottomRightPlayerControls(
                 text = skipIntroButton,
                 onClick = onPressSkipIntroButton,
                 onLongClick = {},
+                modifier = Modifier.tvFocusHighlight(),
             )
         } else if (customButton != null) {
             FilledControlsButton(
                 text = customButtonTitle,
                 onClick = customButton::execute,
                 onLongClick = customButton::executeLongPress,
+                modifier = Modifier.tvFocusHighlight(),
             )
         }
 
@@ -59,12 +62,14 @@ fun BottomRightPlayerControls(
             ControlsButton(
                 Icons.Default.PictureInPictureAlt,
                 onClick = onPipClick,
+                modifier = Modifier.tvFocusHighlight(),
             )
         }
 
         ControlsButton(
             Icons.Default.AspectRatio,
             onClick = onAspectClick,
+            modifier = Modifier.tvFocusHighlight(),
         )
     }
 }

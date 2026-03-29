@@ -36,6 +36,7 @@ import eu.kanade.tachiyomi.ui.player.controls.components.CurrentChapter
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
 import tachiyomi.i18n.aniyomi.AYMR
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 import uy.kohesive.injekt.Injekt
 import uy.kohesive.injekt.api.get
 
@@ -58,10 +59,12 @@ fun BottomLeftPlayerControls(
         ControlsButton(
             Icons.Default.LockOpen,
             onClick = onLockControls,
+            modifier = Modifier.tvFocusHighlight(),
         )
         ControlsButton(
             icon = Icons.Default.ScreenRotation,
             onClick = onCycleRotation,
+            modifier = Modifier.tvFocusHighlight(),
         )
         ControlsButton(
             text = stringResource(AYMR.strings.player_speed, playbackSpeed),
@@ -71,6 +74,7 @@ fun BottomLeftPlayerControls(
                 playerPreferences.playerSpeed().set(newSpeed)
             },
             onLongClick = { onOpenSheet(Sheets.PlaybackSpeed) },
+            modifier = Modifier.tvFocusHighlight(),
         )
         AnimatedVisibility(
             currentChapter != null && playerPreferences.showCurrentChapter().get(),

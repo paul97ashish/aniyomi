@@ -47,6 +47,7 @@ import tachiyomi.presentation.core.components.material.DISABLED_ALPHA
 import tachiyomi.presentation.core.components.material.padding
 import tachiyomi.presentation.core.i18n.pluralStringResource
 import tachiyomi.presentation.core.i18n.stringResource
+import tachiyomi.presentation.core.util.tvFocusHighlight
 
 sealed class HosterState(open val name: String) {
     data class Idle(override val name: String) : HosterState(name)
@@ -287,6 +288,7 @@ fun HosterTrack(
     Row(
         modifier = modifier
             .height(32.dp)
+            .tvFocusHighlight()
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -354,6 +356,7 @@ fun VideoTrack(
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .tvFocusHighlight()
             .clickable(onClick = onClick),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(MaterialTheme.padding.small),
