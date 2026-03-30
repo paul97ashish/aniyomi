@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,7 +56,6 @@ fun MangaLibraryContent(
     ) {
         val coercedCurrentPage = remember { currentPage().coerceAtMost(categories.lastIndex) }
         val pagerState = rememberPagerState(coercedCurrentPage) { categories.size }
-        val lazyGridState = rememberLazyGridState()
 
         val scope = rememberCoroutineScope()
         var isRefreshing by remember(pagerState.currentPage) { mutableStateOf(false) }
@@ -111,7 +109,6 @@ fun MangaLibraryContent(
                 onClickManga = onClickManga,
                 onLongClickManga = onToggleRangeSelection,
                 onClickContinueReading = onContinueReadingClicked,
-                lazyGridState = lazyGridState,
             )
         }
 

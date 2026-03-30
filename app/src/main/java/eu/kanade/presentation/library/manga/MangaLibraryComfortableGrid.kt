@@ -35,7 +35,7 @@ internal fun MangaLibraryComfortableGrid(
         modifier = Modifier.fillMaxSize(),
         columns = columns,
         contentPadding = contentPadding,
-        state = lazyGridState,
+        lazyGridState = lazyGridState,
     ) {
         globalSearchItem(searchQuery, onGlobalSearchClicked)
 

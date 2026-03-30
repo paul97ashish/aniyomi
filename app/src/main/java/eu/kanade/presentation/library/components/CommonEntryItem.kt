@@ -326,7 +326,7 @@ private fun GridItemSelectable(
                 onLongClick = onLongClick,
             )
             .onFocusChanged { isFocused = it.isFocused }
-            .tvFocusHighlight(isFocused = isFocused)
+            .tvFocusHighlight()
             .onKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
                     onClick()
@@ -392,7 +392,7 @@ fun EntryListItem(
                 onLongClick = onLongClick,
             )
             .onFocusChanged { isFocused = it.isFocused }
-            .tvFocusHighlight(isFocused = isFocused)
+            .tvFocusHighlight()
             .onKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
                     onClick()
