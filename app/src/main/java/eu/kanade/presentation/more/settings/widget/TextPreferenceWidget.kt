@@ -1,6 +1,5 @@
 package eu.kanade.presentation.more.settings.widget
 
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -13,15 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import eu.kanade.presentation.theme.TachiyomiPreviewTheme
 import tachiyomi.presentation.core.util.secondaryItemAlpha
-import tachiyomi.presentation.core.util.tvFocusHighlight
 
 @Composable
 fun TextPreferenceWidget(
@@ -34,17 +27,7 @@ fun TextPreferenceWidget(
     onPreferenceClick: (() -> Unit)? = null,
 ) {
     BasePreferenceWidget(
-        modifier = modifier
-            .focusable()
-            .tvFocusHighlight()
-            .onKeyEvent { event ->
-                if (event.key == Key.Enter && event.type == KeyEventType.KeyDown && onPreferenceClick != null) {
-                    onPreferenceClick.invoke()
-                    true
-                } else {
-                    false
-                }
-            },
+        modifier = modifier,
         title = title,
         subcomponent = if (!subtitle.isNullOrBlank()) {
             {
