@@ -1,49 +1,91 @@
 <div align="center">
 
+<img src="https://raw.githubusercontent.com/aniyomiorg/aniyomi/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" alt="AniyomiTV" width="100"/>
+
 # AniyomiTV
 
-### Aniyomi for Android TV — navigate with your remote
+### Full-featured anime & manga manager — built for Android TV
 
-[![Nightly Release](https://img.shields.io/github/v/release/paul97ashish/aniyomi?include_prereleases&label=Nightly&labelColor=27303D&color=818cf8)](https://github.com/paul97ashish/aniyomi/releases/tag/nightly)
-[![CI](https://img.shields.io/github/actions/workflow/status/paul97ashish/aniyomi/build_debug.yml?labelColor=27303D)](https://github.com/paul97ashish/aniyomi/actions)
-[![License: Apache-2.0](https://img.shields.io/github/license/paul97ashish/aniyomi?labelColor=27303D&color=818cf8)](/LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/paul97ashish/aniyomi?label=Release&labelColor=27303D&color=818cf8)](https://github.com/paul97ashish/aniyomi/releases/latest)
+[![Nightly](https://img.shields.io/github/v/release/paul97ashish/aniyomi?include_prereleases&label=Nightly&labelColor=27303D&color=6366f1)](https://github.com/paul97ashish/aniyomi/releases/tag/nightly)
+[![Build](https://img.shields.io/github/actions/workflow/status/paul97ashish/aniyomi/build_debug.yml?labelColor=27303D&label=CI)](https://github.com/paul97ashish/aniyomi/actions)
+[![License](https://img.shields.io/github/license/paul97ashish/aniyomi?labelColor=27303D&color=818cf8)](LICENSE)
 
 </div>
 
-## What is this?
+---
 
-**AniyomiTV** is a fork of [Aniyomi](https://github.com/aniyomiorg/aniyomi) that adds Android TV support. It keeps the full original app experience but layers on TV-specific features so you can control it entirely with a TV remote.
+## What is AniyomiTV?
 
-## What's different from the original
+**AniyomiTV** is a fork of [Aniyomi](https://github.com/aniyomiorg/aniyomi) with full Android TV support. It keeps everything that makes Aniyomi great — extensions, trackers, the MPV-based player — and adds a complete D-pad navigation experience so you can control the app entirely with a TV remote.
 
-| Feature | Detail |
+No cursor. No mouse emulation. Proper Compose focus navigation.
+
+---
+
+## TV Features
+
+| Feature | Description |
 |---|---|
-| **D-pad cursor** | A visible arrow cursor appears on screen and moves with the TV remote's D-pad (↑ ↓ ← →). Accelerates when held. |
-| **Remote tap** | Pressing the remote's `Enter / OK` button injects a tap at the cursor position — no touch needed. |
-| **TV launcher icon** | The app now appears on the Android TV home screen (added `LEANBACK_LAUNCHER` intent filter). |
-| **Cursor auto-hide** | The cursor fades out after 3 seconds of inactivity and reappears on the next D-pad event. |
-| **Crash fix** | Fixed a startup crash on x86 emulators caused by `CookieManager` being initialized too early during dependency injection (`by lazy` fix in `AndroidCookieJar`). |
+| **D-pad navigation** | Full Up/Down/Left/Right focus traversal across every screen — library, browse, settings, episode list, player controls |
+| **Focus highlight** | White rounded border + subtle scale animation shows exactly which item is selected |
+| **NavigationRail layout** | TV devices automatically use the tablet sidebar layout — much better than a bottom nav bar on a 10-foot display |
+| **Player D-pad** | Seek forward/back when controls are hidden; navigate buttons when controls are shown |
+| **TV launcher icon** | App appears on the Android TV home screen (`LEANBACK_LAUNCHER`) |
+| **Overscan padding** | Adjustable screen padding (0–48 dp) in Settings → Appearance for TVs with overscan |
+| **Pager lock** | Horizontal swipe between Browse tabs is disabled on TV — no accidental page switches |
+
+---
 
 ## Download
 
-Every push to `main` automatically builds and publishes a new APK to the [Releases](https://github.com/paul97ashish/aniyomi/releases/tag/nightly) page.
+| Channel | Link | Notes |
+|---|---|---|
+| **Stable** | [Latest Release](https://github.com/paul97ashish/aniyomi/releases/latest) | Tagged releases with changelog |
+| **Nightly** | [Nightly Release](https://github.com/paul97ashish/aniyomi/releases/tag/nightly) | Built on every push to `main` |
 
-**Requirements:** Android 8.0+ / Android TV 5.0+
+**Requirements:** Android 8.0+ · Android TV / Google TV 5.0+
 
-## Installing on an Android TV emulator
+### Install via ADB
 
-1. Download `aniyomiTV-<version>-<sha>.apk` from [Releases](https://github.com/paul97ashish/aniyomi/releases/tag/nightly)
-2. Run: `adb install -r aniyomiTV-<version>-<sha>.apk`
-3. The app will appear on the TV home screen
-4. Press any D-pad key to show the cursor
+```bash
+adb install -r aniyomiTV-<version>.apk
+```
+
+The app will appear on the TV home screen after installation. Enable **Install from unknown sources** if prompted.
+
+---
+
+## What's unchanged from Aniyomi
+
+Everything else is stock Aniyomi:
+
+- All anime & manga extensions
+- Tracking (AniList, MyAnimeList, Kitsu, …)
+- MPV-based video player with subtitle support
+- Download manager, library, history, updates
+
+---
+
+## Building from source
+
+```bash
+git clone https://github.com/paul97ashish/aniyomi.git
+cd aniyomi
+./gradlew app:assemblePreview   # debug-signed, installable
+```
+
+Requires JDK 17.
 
 ---
 
 ## Credits
 
-This project is a fork of [Aniyomi](https://github.com/aniyomiorg/aniyomi) by the Aniyomi Open Source Project, which is itself based on [Mihon](https://github.com/mihonapp/mihon) and the original [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) by Javier Tomás.
+AniyomiTV is a fork of [Aniyomi](https://github.com/aniyomiorg/aniyomi) by the Aniyomi Open Source Project, which is itself built on [Mihon](https://github.com/mihonapp/mihon) and the original [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) by Javier Tomás.
 
-All original features, extensions, trackers, and player capabilities are unchanged. Full credit goes to the original authors and contributors.
+All credit for the core app, extensions ecosystem, and player goes to the original authors and contributors.
+
+---
 
 ## License
 
