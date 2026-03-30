@@ -79,6 +79,14 @@ Requires JDK 17.
 
 ---
 
+## Support the project
+
+If you find AniyomiTV useful, consider sending a tip — it helps keep the project going.
+
+**Crypto (EVM / Smart Wallet):** `0x54eB96316E7D5978D58B2895f41E14F7345A46CF`
+
+---
+
 ## Credits
 
 AniyomiTV is a fork of [Aniyomi](https://github.com/aniyomiorg/aniyomi) by the Aniyomi Open Source Project, which is itself built on [Mihon](https://github.com/mihonapp/mihon) and the original [Tachiyomi](https://github.com/tachiyomiorg/tachiyomi) by Javier Tomás.
