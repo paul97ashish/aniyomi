@@ -1,5 +1,7 @@
 package eu.kanade.presentation.components
 
+import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -20,9 +22,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import tachiyomi.presentation.core.util.LocalIsTvUi
 import dev.icerock.moko.resources.StringResource
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -108,15 +114,39 @@ fun TabbedScreen(
                 }
             }
 
+            val isTvUi = LocalIsTvUi.current
             HorizontalPager(
                 modifier = Modifier.fillMaxSize(),
                 state = state,
                 verticalAlignment = Alignment.Top,
+                userScrollEnabled = !isTvUi,
             ) { page ->
-                tabs[page].content(
-                    PaddingValues(bottom = contentPadding.calculateBottomPadding()),
-                    snackbarHostState,
-                )
+                // On TV: confine horizontal D-pad focus within the current page so
+                // that focus traversal never jumps into an adjacent pre-composed page
+                // (which would cause the pager to scroll left/right unexpectedly).
+                Box(
+                    modifier = if (isTvUi) {
+                        Modifier
+                            .fillMaxSize()
+                            .focusGroup()
+                            .focusProperties {
+                                exit = { direction ->
+                                    if (direction == FocusDirection.Left || direction == FocusDirection.Right) {
+                                        FocusRequester.Cancel
+                                    } else {
+                                        FocusRequester.Default
+                                    }
+                                }
+                            }
+                    } else {
+                        Modifier.fillMaxSize()
+                    },
+                ) {
+                    tabs[page].content(
+                        PaddingValues(bottom = contentPadding.calculateBottomPadding()),
+                        snackbarHostState,
+                    )
+                }
             }
         }
     }
