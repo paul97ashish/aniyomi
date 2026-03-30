@@ -8,7 +8,6 @@ import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -41,11 +40,6 @@ import eu.kanade.presentation.more.settings.LocalPreferenceMinHeight
 import kotlinx.coroutines.delay
 import tachiyomi.presentation.core.util.tvFocusHighlight
 import kotlin.time.Duration.Companion.seconds
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 
 @Composable
 internal fun BasePreferenceWidget(
