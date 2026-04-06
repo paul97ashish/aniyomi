@@ -82,7 +82,7 @@ Requires JDK 17.
 ## Support the project
 
 If you find AniyomiTV useful, consider sending a tip — it helps keep the project going.
-
+**https://buymeacoffee.com/ashishpaul**
 **Crypto (EVM / Smart Wallet):** `0x54eB96316E7D5978D58B2895f41E14F7345A46CF`
 
 ---
